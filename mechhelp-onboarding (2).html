@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#3b5bdb">
+<title>MechHelp Partner Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #3b5bdb; --blue-dark: #2f4ac0; --blue-light: #eef1fd; --blue-mid: #c5cff7;
+    --bg: #f5f7ff; --white: #ffffff; --border: #e2e6f3;
+    --text: #1a1d2e; --muted: #6b7280; --muted2: #9ca3af;
+    --green: #16a34a; --green-bg: #f0fdf4; --green-light: #dcfce7;
+    --red: #dc2626; --red-bg: #fef2f2; --yellow: #d97706;
+    --radius: 10px; --font: 'Inter', sans-serif;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07); --shadow-md: 0 4px 12px rgba(59,91,219,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; font-size: 14px; }
+
+  /* LAYOUT */
+  .app { display: flex; min-height: 100vh; }
+  .sidebar { width: 240px; background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top: 0; left: 0; height: 100vh; overflow-y: auto; z-index: 10; transition: transform 0.3s; }
+  .main { flex: 1; margin-left: 240px; display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* SIDEBAR */
+  .sidebar-logo { padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .logo-img { width: 90px; object-fit: contain; }
+  .nav-section { padding: 10px 0 2px; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--muted2); text-transform: uppercase; letter-spacing: 1px; padding: 0 18px 5px; }
+  .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 18px; cursor: pointer; font-size: 13px; color: var(--muted); transition: all 0.15s; }
+  .nav-item:hover { background: var(--blue-light); color: var(--blue); }
+  .nav-item.active { background: var(--blue-light); color: var(--blue); font-weight: 600; }
+  .nav-item.done { color: var(--green); }
+  .nav-item.done:hover { background: var(--green-bg); }
+  .step-num { width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; flex-shrink: 0; color: var(--muted2); background: var(--bg); }
+  .nav-item.active .step-num { border-color: var(--blue); background: var(--blue); color: #fff; }
+  .nav-item.done .step-num { border-color: var(--green); background: var(--green); color: #fff; }
+
+  /* SIDEBAR SEPARATOR — visits is separate */
+  .sidebar-sep { margin: 8px 18px; border: none; border-top: 1px dashed var(--border); }
+
+  /* GARAGES LIST in sidebar */
+  .sidebar-garages { padding: 10px 0; border-top: 1px solid var(--border); margin-top: auto; }
+  .sg-label { font-size: 10px; font-weight: 600; color: var(--muted2); text-transform: uppercase; letter-spacing: 1px; padding: 0 18px 6px; }
+  .sg-item { padding: 7px 18px; font-size: 12px; color: var(--muted); cursor: pointer; transition: 0.15s; display: flex; align-items: center; gap: 7px; }
+  .sg-item:hover { background: var(--blue-light); color: var(--blue); }
+  .sg-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .sg-empty { padding: 8px 18px; font-size: 12px; color: var(--muted2); font-style: italic; }
+
+  /* TOPBAR */
+  .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 13px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 5; box-shadow: var(--shadow); }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .hamburger { display: none; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 20px; }
+  .topbar-title { font-size: 15px; font-weight: 700; }
+  .topbar-right { display: flex; gap: 8px; align-items: center; }
+  .step-pill { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: var(--blue-light); color: var(--blue); border: 1px solid var(--blue-mid); }
+  .visits-tab-btn { font-size: 12px; font-weight: 600; padding: 6px 13px; border-radius: 8px; border: 1.5px solid var(--blue-mid); background: var(--blue-light); color: var(--blue); cursor: pointer; transition: 0.15s; }
+  .visits-tab-btn:hover { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .visits-tab-btn.active-tab { background: var(--blue); color: #fff; border-color: var(--blue); }
+
+  /* PROGRESS */
+  .progress-wrap { background: var(--white); padding: 0 24px 12px; border-bottom: 1px solid var(--border); }
+  .progress-label { font-size: 11px; color: var(--muted); margin-bottom: 5px; padding-top: 10px; }
+  .progress-track { height: 4px; background: var(--border); border-radius: 4px; }
+  .progress-fill { height: 4px; background: var(--blue); border-radius: 4px; transition: width 0.4s; }
+
+  /* CONTENT */
+  .content-wrap { flex: 1; padding: 22px; max-width: 760px; width: 100%; margin: 0 auto; }
+  .sec-title { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .sec-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+  /* CARDS */
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .card-label { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 13px; }
+
+  /* FORMS */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+  .form-full { grid-column: 1 / -1; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  .field label .req { color: var(--red); margin-left: 2px; }
+  .field input, .field select, .field textarea {
+    background: var(--bg); border: 1.5px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: var(--font); font-size: 13.5px;
+    padding: 9px 11px; outline: none; transition: all 0.15s; width: 100%;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue); background: var(--white); box-shadow: 0 0 0 3px rgba(59,91,219,0.08); }
+  .field input.err, .field select.err, .field textarea.err { border-color: var(--red); background: var(--red-bg); }
+  .field textarea { resize: vertical; min-height: 70px; }
+  .field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 11px center; }
+  .err-msg { font-size: 11px; color: var(--red); margin-top: 2px; display: none; }
+  .err-msg.show { display: block; }
+
+  /* VALIDATION BANNER */
+  .val-banner { background: var(--red-bg); border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--red); margin-bottom: 14px; display: none; }
+  .val-banner.show { display: flex; align-items: center; gap: 8px; }
+
+  /* DAYS */
+  .days-row { display: flex; gap: 7px; flex-wrap: wrap; }
+  .day-btn { width: 42px; height: 38px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg); color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; transition: 0.15s; }
+  .day-btn.sel { border-color: var(--blue); background: var(--blue); color: #fff; }
+  .day-btn:hover:not(.sel) { border-color: var(--blue); color: var(--blue); }
+
+  /* TOGGLE */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+  .t-label { font-size: 14px; font-weight: 500; }
+  .t-sub { font-size: 12px; color: var(--muted); }
+  .toggle { position: relative; width: 42px; height: 23px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; background: var(--border); border-radius: 12px; cursor: pointer; transition: 0.2s; }
+  .slider:before { content: ''; position: absolute; height: 17px; width: 17px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+  .toggle input:checked + .slider { background: var(--blue); }
+  .toggle input:checked + .slider:before { transform: translateX(19px); }
+
+  /* SLOT ROWS */
+  .slot-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 9px; align-items: end; margin-bottom: 9px; }
+  .rm-btn { width: 32px; height: 34px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg); color: var(--red); cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  .rm-btn:hover { background: var(--red-bg); border-color: var(--red); }
+  .add-btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 13px; border-radius: 8px; border: 1.5px dashed var(--blue-mid); background: var(--blue-light); color: var(--blue); font-size: 12.5px; font-weight: 500; cursor: pointer; transition: 0.15s; margin-top: 4px; }
+  .add-btn:hover { border-color: var(--blue); }
+
+  /* SERVICE TABLE */
+  .svc-head, .svc-row { display: grid; grid-template-columns: 2.5fr 1fr 1fr auto; gap: 9px; align-items: center; }
+  .svc-head { font-size: 10.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; padding-bottom: 7px; border-bottom: 1px solid var(--border); margin-bottom: 7px; }
+  .svc-row { margin-bottom: 7px; }
+
+  /* OIL TABLE */
+  .oil-head, .oil-row-g { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 9px; align-items: center; }
+  .oil-head { font-size: 10.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; padding-bottom: 7px; border-bottom: 1px solid var(--border); margin-bottom: 7px; }
+  .oil-row-g { margin-bottom: 7px; }
+
+  /* MECH */
+  .mech-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+  .mech-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 11px; }
+  .mech-title { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* PHOTO SOP */
+  .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }
+  .photo-item { border: 1.5px solid var(--border); border-radius: 8px; padding: 14px 10px; text-align: center; cursor: pointer; transition: 0.15s; position: relative; background: var(--white); }
+  .photo-item:hover { border-color: var(--blue); box-shadow: var(--shadow-md); }
+  .photo-item.done { border-color: var(--green); background: var(--green-bg); }
+  .photo-item input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .photo-check { width: 20px; height: 20px; background: var(--green); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 10px; color: #fff; position: absolute; top: 7px; right: 7px; }
+  .photo-item.done .photo-check { display: flex; }
+  .photo-icon { font-size: 22px; margin-bottom: 5px; }
+  .photo-label { font-size: 11.5px; font-weight: 600; }
+  .photo-hint { font-size: 10px; color: var(--muted); line-height: 1.3; margin-top: 2px; }
+  .photo-item.done .photo-label { color: var(--green); }
+
+  /* ─── CALENDAR PANEL ─── */
+  .cal-panel { padding: 22px; max-width: 960px; margin: 0 auto; width: 100%; }
+  .cal-panel-title { font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+  .cal-panel-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .cal-layout { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; }
+  .cal-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+  .cal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .cal-mon-name { font-size: 15px; font-weight: 700; }
+  .cal-nav { display: flex; gap: 4px; }
+  .cal-nav button { width: 28px; height: 28px; border: 1px solid var(--border); background: var(--bg); border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--muted); }
+  .cal-nav button:hover { border-color: var(--blue); color: var(--blue); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+  .cdl { text-align: center; font-size: 10px; font-weight: 600; color: var(--muted2); padding: 4px 0; }
+  .cd { aspect-ratio: 1; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; position: relative; color: var(--text); transition: 0.15s; }
+  .cd:hover:not(.empty):not(.other-m) { background: var(--blue-light); }
+  .cd.today { background: var(--blue-light); color: var(--blue); font-weight: 700; }
+  .cd.has-v::after { content: ''; position: absolute; bottom: 2px; width: 4px; height: 4px; background: var(--blue); border-radius: 50%; }
+  .cd.sel { background: var(--blue); color: #fff; font-weight: 600; }
+  .cd.sel.has-v::after { background: #fff; }
+  .cd.other-m { color: #ddd; cursor: default; }
+  .cd.empty { cursor: default; }
+
+  /* VISIT ITEMS */
+  .v-item { display: flex; align-items: flex-start; gap: 9px; padding: 11px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 7px; }
+  .v-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .v-name { font-size: 13px; font-weight: 600; }
+  .v-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .v-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex-shrink: 0; }
+  .v-status { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 12px; }
+  .s-scheduled { background: #eff6ff; color: #1d4ed8; }
+  .s-done { background: var(--green-bg); color: var(--green); }
+  .s-missed { background: var(--red-bg); color: var(--red); }
+  .s-rescheduled { background: #fffbeb; color: var(--yellow); }
+  .v-del { width: 24px; height: 24px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--muted2); cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+  .v-del:hover { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+
+  /* ONBOARDED BADGE */
+  .onboarded-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--green-bg); border: 1.5px solid var(--green-light); border-radius: 20px; padding: 3px 12px 3px 8px; font-size: 12px; font-weight: 600; color: var(--green); }
+  .ob-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+
+  /* BUTTONS */
+  .btn { padding: 9px 18px; border-radius: 8px; font-family: var(--font); font-size: 13.5px; font-weight: 500; cursor: pointer; transition: 0.15s; border: none; }
+  .btn-blue { background: var(--blue); color: #fff; }
+  .btn-blue:hover { background: var(--blue-dark); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn-outline:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-light); }
+  .btn-danger-sm { background: transparent; border: 1px solid var(--border); color: var(--red); font-size: 12px; padding: 4px 9px; border-radius: 6px; cursor: pointer; }
+  .btn-danger-sm:hover { background: var(--red-bg); border-color: var(--red); }
+  .btn-sm { padding: 7px 13px; font-size: 12px; }
+
+  /* VEHICLE TYPE BTNS */
+  .vtype-btn { padding: 9px 18px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg); color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.15s; font-family: var(--font); }
+  .vtype-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .vtype-sel { border-color: var(--blue); background: var(--blue); color: #fff !important; }
+
+  /* SLOT CHIPS */
+  .slot-chips-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .slot-chip { padding: 8px 6px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg); color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; transition: 0.15s; font-family: var(--font); text-align: center; }
+  .slot-chip:hover { border-color: var(--blue); color: var(--blue); }
+  .slot-chip-sel { border-color: var(--blue); background: var(--blue); color: #fff; }
+
+  /* CHECKLIST */
+  .checklist-item { display: flex; align-items: center; gap: 14px; padding: 13px 4px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.15s; border-radius: 6px; }
+  .checklist-item:last-child { border-bottom: none; }
+  .checklist-item:hover { background: var(--blue-light); padding-left: 8px; }
+  .checklist-item.checklist-done { background: var(--green-bg); padding-left: 8px; }
+  .checklist-item.checklist-done:hover { background: #d1fae5; }
+  .cl-checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; color: #fff; transition: 0.15s; background: var(--white); }
+  .checklist-done .cl-checkbox { background: var(--green); border-color: var(--green); }
+  .cl-icon { font-size: 20px; flex-shrink: 0; }
+  .cl-info { flex: 1; }
+  .cl-label { font-size: 13.5px; font-weight: 600; color: var(--text); }
+  .checklist-done .cl-label { color: var(--green); }
+  .cl-hint { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+  @media (max-width: 480px) { .slot-chips-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  /* PAGE FOOTER */
+  .page-footer { padding: 14px 24px; padding-bottom: max(14px, env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--white); display: flex; align-items: center; justify-content: space-between; position: sticky; bottom: 0; }
+  .footer-step { font-size: 12px; color: var(--muted); }
+
+  /* MODAL */
+  .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; backdrop-filter: blur(3px); }
+  .modal-box { background: var(--white); border-radius: 12px; padding: 22px; width: 100%; max-width: 460px; box-shadow: 0 20px 60px rgba(0,0,0,0.18); max-height: 90vh; overflow-y: auto; }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+  .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 18px; }
+
+  /* GARAGE DETAIL MODAL */
+  .gd-header { background: var(--blue); border-radius: 10px; padding: 18px; margin-bottom: 16px; color: #fff; }
+  .gd-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .gd-city { font-size: 13px; opacity: 0.8; }
+  .gd-section { margin-bottom: 14px; }
+  .gd-sec-title { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .gd-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .gd-row:last-child { border: none; }
+  .gd-k { color: var(--muted); }
+  .gd-v { font-weight: 500; text-align: right; max-width: 58%; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 20px; right: 20px; background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; z-index: 100; animation: tIn 0.3s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+  .toast.t-success { border-color: var(--green); }
+  .toast.t-error { border-color: var(--red); }
+  .toast.t-info { border-color: var(--blue); }
+  @keyframes tIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+  /* SIDEBAR OVERLAY */
+  .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 9; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    /* Sidebar slides in as drawer */
+    .sidebar { transform: translateX(-100%); z-index: 20; }
+    .sidebar.open { transform: translateX(0); box-shadow: 6px 0 24px rgba(0,0,0,0.18); }
+    .sidebar-overlay.show { display: block; }
+    .main { margin-left: 0; }
+    .hamburger { display: block; }
+
+    /* Topbar — shrink buttons on mobile */
+    .topbar { padding: 10px 14px; gap: 8px; }
+    .topbar-title { font-size: 13px; max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topbar-right { gap: 6px; }
+    .visits-tab-btn { font-size: 11px; padding: 5px 9px; }
+    .step-pill { display: none; }
+    .btn-outline.btn-sm { display: none; } /* hide Preview on mobile — use summary from nav */
+    .btn-blue.btn-sm { font-size: 12px; padding: 7px 12px; }
+
+    /* Progress */
+    .progress-wrap { padding: 0 14px 10px; }
+
+    /* Content */
+    .content-wrap, .cal-panel { padding: 14px; }
+    .sec-title { font-size: 16px; }
+    .card { padding: 14px; }
+
+    /* Footer nav */
+    .page-footer { padding: 10px 14px; }
+    .page-footer .btn { font-size: 13px; padding: 9px 16px; }
+
+    /* Forms — single column */
+    .form-grid { grid-template-columns: 1fr; }
+    .form-full { grid-column: 1; }
+
+    /* Services — 2 col on tablet */
+    .svc-head { display: none; }
+    .svc-row { grid-template-columns: 1fr 80px auto !important; }
+
+    /* Oil — 3 col */
+    .oil-head span:last-child { display: none; }
+
+    /* Vehicle type buttons — wrap */
+    .vtype-btn { font-size: 12px; padding: 8px 12px; }
+
+    /* Slot chips — 3 per row on tablet */
+    .slot-chips-grid { grid-template-columns: repeat(3, 1fr); }
+
+    /* Calendar */
+    .cal-layout { grid-template-columns: 1fr; }
+    .cal-card { padding: 14px; }
+
+    /* Modal */
+    .modal-box { padding: 18px; border-radius: 10px; }
+
+    /* Checklist */
+    .cl-label { font-size: 13px; }
+    .cl-hint { font-size: 10.5px; }
+  }
+
+  @media (max-width: 480px) {
+    /* Topbar very small */
+    .topbar-title { font-size: 12px; max-width: 100px; }
+    .visits-tab-btn { font-size: 11px; padding: 5px 8px; }
+
+    /* Single column everywhere */
+    .form-grid { grid-template-columns: 1fr; }
+
+    /* Services */
+    .svc-row { grid-template-columns: 1fr 70px auto !important; }
+
+    /* Oil — stacked 3 col */
+    .oil-head { display: none; }
+
+    /* Vehicle type full width */
+    .vtype-btn { flex: 1; text-align: center; font-size: 11.5px; padding: 8px 6px; }
+
+    /* Slot chips — 3 per row */
+    .slot-chips-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .slot-chip { font-size: 11px; padding: 7px 4px; }
+
+    /* Photo grid — 2 cols */
+    .photo-grid { grid-template-columns: repeat(2, 1fr); }
+
+    /* Calendar days smaller */
+    .cd { font-size: 11px; }
+    .cal-mon-name { font-size: 14px; }
+
+    /* Footer btns full width area */
+    .page-footer { gap: 8px; }
+    #nextBtn { flex: 1; }
+
+    /* Checklist tighter */
+    .checklist-item { gap: 10px; padding: 11px 4px; }
+    .cl-icon { font-size: 18px; }
+
+    /* Garage detail modal header */
+    .gd-name { font-size: 15px; }
+  }
+
+  /* Touch-friendly tap targets */
+  @media (hover: none) {
+    .field input, .field select, .field textarea { font-size: 16px; } /* prevents iOS zoom */
+    .day-btn { min-width: 40px; min-height: 40px; }
+    .slot-chip { min-height: 40px; }
+    .checklist-item { min-height: 52px; }
+    .nav-item { min-height: 44px; }
+    .btn { min-height: 44px; }
+  }
+
+  .hidden { display: none !important; }
+  select option { background: #fff; color: #1a1d2e; }
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sovl" onclick="closeSidebar()"></div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="Untitled_design__4_.png" class="logo-img" onerror="this.outerHTML='<div style=\'font-size:13px;font-weight:800;color:var(--blue);line-height:1.2\'>MECH<br>HELP</div>'" />
+    </div>
+    <div id="sidebarNav"></div>
+
+    <!-- Onboarded Garages list -->
+    <div class="sidebar-garages" id="sidebarGarages">
+      <div class="sg-label">Onboarded Garages</div>
+      <div id="sgList"><div class="sg-empty">None yet</div></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div class="topbar-title" id="topTitle">Garage Information</div>
+      </div>
+      <div class="topbar-right">
+        <button class="visits-tab-btn" id="visitsTabBtn" onclick="toggleVisitsPanel()">📅 Visits</button>
+        <span class="step-pill" id="stepPill">1 / 9</span>
+        <button class="btn btn-outline btn-sm" onclick="showSummary()">Preview</button>
+        <button class="btn btn-blue btn-sm" onclick="submitData()">💾 Save</button>
+      </div>
+    </div>
+
+    <!-- PROGRESS (hidden in visits panel) -->
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-label" id="progressLabel">Step 1 of 9</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:11%"></div></div>
+    </div>
+
+    <!-- SOP CONTENT -->
+    <div id="sopArea">
+      <div class="content-wrap" id="stepContent"></div>
+      <div class="page-footer">
+        <button class="btn btn-outline" id="prevBtn" onclick="navigate(-1)">← Back</button>
+        <span class="footer-step" id="footerStep">1 of 9</span>
+        <button class="btn btn-blue" id="nextBtn" onclick="navigate(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- VISITS PANEL (hidden by default) -->
+    <div id="visitsArea" class="hidden">
+      <div class="cal-panel" id="calContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- VISIT MODAL -->
+<div class="modal-bg hidden" id="visitModal">
+  <div class="modal-box">
+    <div class="modal-title">📅 Schedule Garage Visit</div>
+    <div id="vBanner" class="val-banner">⚠ Please fill all required fields.</div>
+    <div class="form-grid">
+      <div class="field form-full"><label>Garage / Lead Name <span class="req">*</span></label><input id="vm_garage" placeholder="Garage name or lead" /><span class="err-msg" id="vg_err">Required</span></div>
+      <div class="field"><label>Visit Date <span class="req">*</span></label><input id="vm_date" type="date" /><span class="err-msg" id="vd_err">Required</span></div>
+      <div class="field"><label>Visit Time</label><input id="vm_time" type="time" /></div>
+      <div class="field"><label>Field Agent</label><input id="vm_agent" placeholder="Agent name" /></div>
+      <div class="field"><label>Status</label>
+        <select id="vm_status"><option>Scheduled</option><option>Done</option><option>Missed</option><option>Rescheduled</option></select>
+      </div>
+      <div class="field form-full"><label>Notes</label><textarea id="vm_notes" placeholder="Any notes about this visit..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-blue" onclick="saveVisit()">Save Visit</button>
+    </div>
+  </div>
+</div>
+
+<!-- GARAGE DETAIL MODAL -->
+<div class="modal-bg hidden" id="garageModal">
+  <div class="modal-box" style="max-width:500px;">
+    <div id="garageModalContent"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeGarageModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast hidden" id="toast"><span id="toastIcon">✓</span><span id="toastMsg">Saved</span></div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────
+// ⚠️  PASTE YOUR APPS SCRIPT WEB APP URL BELOW  ⚠️
+// Instructions: see STEP 1 in README.md
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzrIjItGqY46K1JGf_-etkxfxgcD7_o_ydS-17-QhP2_cRLnm7CJOS1hCxtpZLRlXJ/exec';
+// ──────────────────────────────────────────────────────────────
+
+const STEPS = [
+  { id:'basic',     label:'Garage Information',    icon:'🏪', group:'Onboarding'    },
+  { id:'schedule',  label:'Working Hours',         icon:'🕐', group:'Onboarding'    },
+  { id:'pickup',    label:'Pickup Service',        icon:'🚗', group:'Onboarding'    },
+  { id:'services',  label:'Services & Commission', icon:'🔧', group:'Onboarding'    },
+  { id:'mechanics', label:'Mechanics',             icon:'👨‍🔧', group:'Onboarding'   },
+  { id:'oil',       label:'Engine Oil',            icon:'🛢️', group:'Onboarding'    },
+  { id:'owner',     label:'Owner & Contact',       icon:'👤', group:'Onboarding'    },
+  { id:'payment',   label:'Payment Details',       icon:'💳', group:'Onboarding'    },
+  { id:'images',    label:'Photo SOP',             icon:'📷', group:'Documentation' },
+];
+
+// Mandatory fields per step: [stepId, fieldId, label]
+const REQUIRED = {
+  basic:     [['gN','Garage Name'], ['gA','Address'], ['gC','City']],
+  schedule:  [['oT','Opening Time'], ['cT','Closing Time']],
+  owner:     [['oN','Owner Name'], ['oP','Phone']],
+};
+
+let cur = 0;
+let showingVisits = false;
+let fd = {
+  garageName:'', garageAddress:'', garageCity:'', garageState:'', garagePincode:'', mapLink:'',
+  workingDays:[], openTime:'09:00', closeTime:'21:00', scheduleNote:'',
+  pickupAvailable:false, pickupSlots:[],
+  garageVtype:'4W',
+  services:[{ name:'General Service', commission:'' }],
+  mechanics:[{ name:'', speciality:'General', experience:'', phone:'' }],
+  oils:[{ brand:'Castrol', grade:'10W-40', price:'' }],
+  ownerName:'', phone:'', altPhone:'', whatsapp:'', panAadhar:'', aadhar:'', ghumasta:'',
+  upiId:'', accountNo:'', ifsc:'', bank:'', qrFile:'',
+  images:{}, visits:[]
+};
+
+// Saved garages list (persisted in localStorage)
+let savedGarages = JSON.parse(localStorage.getItem('mh_garages') || '[]');
+
+let calY = new Date().getFullYear(), calM = new Date().getMonth(), selDate = null;
+
+// ─── SIDEBAR ───
+function renderSidebar() {
+  let html = '', lastG = '';
+  STEPS.forEach((s, i) => {
+    if (s.group !== lastG) { html += `<div class="nav-section"><div class="nav-label">${s.group}</div>`; lastG = s.group; }
+    const done = i < cur, active = i === cur;
+    html += `<div class="nav-item ${active?'active':''} ${done?'done':''}" onclick="goTo(${i})">
+      <div class="step-num">${done?'✓':i+1}</div>
+      <span>${s.icon} ${s.label}</span>
+    </div>`;
+  });
+  document.getElementById('sidebarNav').innerHTML = html;
+
+  // Onboarded garages
+  const sgEl = document.getElementById('sgList');
+  if (savedGarages.length === 0) {
+    sgEl.innerHTML = '<div class="sg-empty">None yet</div>';
+  } else {
+    sgEl.innerHTML = savedGarages.map((g, i) =>
+      `<div class="sg-item" onclick="showGarageDetail(${i})"><div class="sg-dot"></div>${g['Garage Name']||'Unnamed'}</div>`
+    ).join('');
+  }
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sovl').classList.toggle('show'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sovl').classList.remove('show'); }
+
+// ─── VISITS PANEL TOGGLE ───
+function toggleVisitsPanel() {
+  showingVisits = !showingVisits;
+  document.getElementById('sopArea').classList.toggle('hidden', showingVisits);
+  document.getElementById('visitsArea').classList.toggle('hidden', !showingVisits);
+  document.getElementById('progressWrap').classList.toggle('hidden', showingVisits);
+  document.getElementById('visitsTabBtn').classList.toggle('active-tab', showingVisits);
+  document.getElementById('topTitle').textContent = showingVisits ? '📅 Visit Calendar' : (STEPS[cur].icon + ' ' + STEPS[cur].label);
+  document.getElementById('stepPill').style.display = showingVisits ? 'none' : '';
+  if (showingVisits) renderVisitsPanel();
+}
+
+// ─── NAVIGATE ───
+function navigate(dir) {
+  if (dir === 1 && !validateStep()) return;
+  collect();
+  cur = Math.max(0, Math.min(STEPS.length-1, cur+dir));
+  renderAll();
+  if (cur === STEPS.length-1 && dir === 1) { /* submit on last next */ }
+}
+function goTo(i) { collect(); cur = i; renderAll(); closeSidebar(); showingVisits = false; document.getElementById('sopArea').classList.remove('hidden'); document.getElementById('visitsArea').classList.add('hidden'); document.getElementById('progressWrap').classList.remove('hidden'); document.getElementById('visitsTabBtn').classList.remove('active-tab'); }
+
+function renderAll() {
+  const s = STEPS[cur];
+  document.getElementById('topTitle').textContent = s.icon + ' ' + s.label;
+  document.getElementById('stepPill').textContent = `${cur+1} / ${STEPS.length}`;
+  document.getElementById('footerStep').textContent = `${cur+1} of ${STEPS.length}`;
+  document.getElementById('progressLabel').textContent = `Step ${cur+1} of ${STEPS.length} — ${s.label}`;
+  document.getElementById('progressFill').style.width = ((cur+1)/STEPS.length*100)+'%';
+  document.getElementById('prevBtn').style.opacity = cur === 0 ? '0.4' : '1';
+  document.getElementById('nextBtn').textContent = cur === STEPS.length-1 ? '✓ Submit' : 'Next →';
+  renderSidebar();
+  const map = { basic:rBasic, schedule:rSchedule, pickup:rPickup, services:rServices, mechanics:rMechanics, oil:rOil, owner:rOwner, payment:rPayment, images:rImages };
+  document.getElementById('stepContent').innerHTML = '';
+  map[s.id]();
+  window.scrollTo(0,0);
+}
+
+// ─── VALIDATION ───
+function validateStep() {
+  const sid = STEPS[cur].id;
+  const reqs = REQUIRED[sid] || [];
+  let valid = true;
+
+  // Clear previous errors
+  document.querySelectorAll('.err-msg.show').forEach(e => e.classList.remove('show'));
+  document.querySelectorAll('.err').forEach(e => e.classList.remove('err'));
+  const banner = document.getElementById('valBanner');
+  if (banner) banner.classList.remove('show');
+
+  let missing = [];
+  reqs.forEach(([id, label]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (!el.value.trim()) {
+      el.classList.add('err');
+      const errEl = document.getElementById(id+'_err');
+      if (errEl) errEl.classList.add('show');
+      missing.push(label);
+      valid = false;
+    }
+  });
+
+  // Working days validation
+  if (sid === 'schedule' && fd.workingDays.length === 0) {
+    valid = false;
+    missing.push('Working Days');
+  }
+
+  if (!valid) {
+    if (banner) { banner.textContent = '⚠ Required: ' + missing.join(', '); banner.classList.add('show'); }
+    showToast('Please fill required fields: ' + missing.join(', '), 'error');
+  }
+  return valid;
+}
+
+function set(html) { document.getElementById('stepContent').innerHTML = html; }
+
+// ─── STEP: BASIC ───
+function rBasic() {
+  set(`
+    <div id="valBanner" class="val-banner"></div>
+    <div class="sec-title">Garage Information</div>
+    <div class="sec-sub">Enter core details about the garage being onboarded.</div>
+    <div class="card">
+      <div class="card-label">🏪 Garage Details</div>
+      <div class="form-grid">
+        <div class="field form-full">
+          <label>Garage Name <span class="req">*</span></label>
+          <input id="gN" value="${fd.garageName}" placeholder="e.g. Sharma Auto Works" />
+          <span class="err-msg" id="gN_err">Garage name is required</span>
+        </div>
+        <div class="field form-full">
+          <label>Full Address <span class="req">*</span></label>
+          <textarea id="gA" placeholder="Street, area, landmark">${fd.garageAddress}</textarea>
+          <span class="err-msg" id="gA_err">Address is required</span>
+        </div>
+        <div class="field">
+          <label>City <span class="req">*</span></label>
+          <input id="gC" value="${fd.garageCity}" placeholder="City" />
+          <span class="err-msg" id="gC_err">City is required</span>
+        </div>
+        <div class="field"><label>State</label><input id="gS" value="${fd.garageState}" placeholder="State" /></div>
+        <div class="field"><label>Pincode</label><input id="gP" value="${fd.garagePincode}" placeholder="400001" maxlength="6" /></div>
+        <div class="field"><label>Google Maps Link</label><input id="gM" value="${fd.mapLink}" placeholder="Paste share link from Maps" /></div>
+      </div>
+    </div>
+    <div class="card" style="background:var(--blue-light);border-color:var(--blue-mid);">
+      <div class="card-label" style="color:var(--blue);">📍 How to get Maps link</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.8;">
+        1. Open <b style="color:var(--text)">Google Maps</b> → find the garage<br>
+        2. Tap <b style="color:var(--text)">Share → Copy Link</b><br>
+        3. Paste in the field above
+      </div>
+    </div>
+  `);
+}
+
+// ─── STEP: SCHEDULE ───
+function rSchedule() {
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const dbtns = days.map(d=>`<button class="day-btn ${fd.workingDays.includes(d)?'sel':''}" onclick="toggleDay('${d}',this)">${d}</button>`).join('');
+  set(`
+    <div id="valBanner" class="val-banner"></div>
+    <div class="sec-title">Working Hours</div>
+    <div class="sec-sub">Set operating schedule for this garage.</div>
+    <div class="card">
+      <div class="card-label">📅 Working Days <span style="color:var(--red);margin-left:2px;">*</span></div>
+      <div class="days-row">${dbtns}</div>
+      <div id="days_err" class="err-msg ${fd.workingDays.length===0?'':''}">Select at least one working day</div>
+    </div>
+    <div class="card">
+      <div class="card-label">⏰ Timings</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Opening Time <span class="req">*</span></label>
+          <input type="time" id="oT" value="${fd.openTime}" />
+          <span class="err-msg" id="oT_err">Required</span>
+        </div>
+        <div class="field">
+          <label>Closing Time <span class="req">*</span></label>
+          <input type="time" id="cT" value="${fd.closeTime}" />
+          <span class="err-msg" id="cT_err">Required</span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">📝 Schedule Notes</div>
+      <div class="field">
+        <label>Notes / Special Timings</label>
+        <textarea id="schedNote" placeholder="e.g. Closed on 2nd Saturday, Holiday schedule, Lunch break 2–3 PM...">${fd.scheduleNote||''}</textarea>
+      </div>
+    </div>
+  `);
+}
+function toggleDay(d, el) {
+  if (fd.workingDays.includes(d)) { fd.workingDays = fd.workingDays.filter(x=>x!==d); el.classList.remove('sel'); }
+  else { fd.workingDays.push(d); el.classList.add('sel'); }
+}
+
+// ─── STEP: PICKUP ───
+function rPickup() {
+  // Generate all half-hour slots from 6:00 AM to 10:00 PM
+  const slots = [];
+  for (let h = 6; h <= 22; h++) {
+    ['00','30'].forEach(m => {
+      if (h === 22 && m === '30') return;
+      const h12 = h % 12 === 0 ? 12 : h % 12;
+      const ampm = h < 12 ? 'AM' : 'PM';
+      slots.push({ val: `${String(h).padStart(2,'0')}:${m}`, label: `${h12}:${m} ${ampm}` });
+    });
+  }
+  const slotBtns = slots.map(s =>
+    `<button class="slot-chip ${fd.pickupSlots.includes(s.val)?'slot-chip-sel':''}" onclick="toggleSlot('${s.val}',this)">${s.label}</button>`
+  ).join('');
+  set(`
+    <div class="sec-title">Pickup & Drop</div>
+    <div class="sec-sub">Does the garage offer vehicle pickup and drop service?</div>
+    <div class="card">
+      <div class="toggle-row">
+        <div><div class="t-label">Pickup & Drop Available</div><div class="t-sub">Garage collects & drops customer vehicles</div></div>
+        <label class="toggle"><input type="checkbox" id="pAvail" ${fd.pickupAvailable?'checked':''} onchange="togglePU(this)" /><span class="slider"></span></label>
+      </div>
+    </div>
+    <div class="card ${fd.pickupAvailable?'':'hidden'}" id="puCard">
+      <div class="card-label">🕐 Available Pickup Slots</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;">Tap to select all time slots when pickup is available</div>
+      <div class="slot-chips-grid">${slotBtns}</div>
+      <div style="margin-top:12px;font-size:12px;color:var(--blue);" id="slotCount">
+        ${fd.pickupSlots.length} slot${fd.pickupSlots.length!==1?'s':''} selected
+      </div>
+    </div>
+  `);
+}
+function togglePU(el) { fd.pickupAvailable=el.checked; const c=document.getElementById('puCard'); if(c)c.classList.toggle('hidden',!el.checked); }
+function toggleSlot(val, el) {
+  if (fd.pickupSlots.includes(val)) {
+    fd.pickupSlots = fd.pickupSlots.filter(s => s !== val);
+    el.classList.remove('slot-chip-sel');
+  } else {
+    fd.pickupSlots.push(val);
+    el.classList.add('slot-chip-sel');
+  }
+  const cnt = document.getElementById('slotCount');
+  if (cnt) cnt.textContent = fd.pickupSlots.length + ' slot' + (fd.pickupSlots.length!==1?'s':'') + ' selected';
+}
+
+// ─── STEP: SERVICES ───
+const SVC_LIST=['General Service','Oil Change','Tyre Puncture','Tyre Replacement','Battery Replacement','Brake Service','AC Service','Denting & Painting','Wheel Alignment','Wheel Balancing','Windshield Repair','Suspension Work','Electrical Repair','Engine Overhauling','Transmission Service','Clutch Repair','Insurance Work','Washing & Cleaning','Roadside Assistance'];
+function rServices() {
+  set(`
+    <div class="sec-title">Services & Commission</div>
+    <div class="sec-sub">List all services and set MechHelp's commission %.</div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-label">🚗 Garage Vehicle Type</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="vtype-btn ${fd.garageVtype==='4W'?'vtype-sel':''}" onclick="setVtype('4W',this)">🚗 4-Wheeler Only</button>
+        <button class="vtype-btn ${fd.garageVtype==='2W'?'vtype-sel':''}" onclick="setVtype('2W',this)">🏍️ 2-Wheeler Only</button>
+        <button class="vtype-btn ${fd.garageVtype==='Both'?'vtype-sel':''}" onclick="setVtype('Both',this)">Both</button>
+      </div>
+    </div>
+    <div class="info-box">💡 Commission is MechHelp's earning from each booking at this garage.</div>
+    <div class="card">
+      <div class="card-label">🔧 Service List</div>
+      <div class="svc-head"><span>Service Name</span><span>Commission %</span><span></span></div>
+      <div id="svcList">${fd.services.map(svcRow).join('')}</div>
+      <button class="add-btn" onclick="addSvc()">+ Add Service</button>
+    </div>
+  `);
+}
+function setVtype(v, el) {
+  fd.garageVtype = v;
+  document.querySelectorAll('.vtype-btn').forEach(b => b.classList.remove('vtype-sel'));
+  el.classList.add('vtype-sel');
+}
+const _ss = (s)=>`background:var(--bg);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-size:12.5px;width:100%;font-family:var(--font);`;
+function svcRow(s,i) {
+  const opts=SVC_LIST.map(n=>`<option ${s.name===n?'selected':''} value="${n}">${n}</option>`).join('');
+  return `<div class="svc-row" style="grid-template-columns:2.5fr 1fr auto;">
+    <select id="sn_${i}" style="${_ss()}">${opts}</select>
+    <input id="sc_${i}" value="${s.commission||''}" placeholder="%" type="number" style="${_ss()}" />
+    <button class="rm-btn" onclick="rmSvc(${i})">×</button>
+  </div>`;
+}
+function addSvc() {
+  fd.services.forEach((_,i)=>{
+    const n=document.getElementById('sn_'+i),c=document.getElementById('sc_'+i);
+    if(n)fd.services[i].name=n.value;
+    if(c)fd.services[i].commission=c.value;
+  });
+  fd.services.push({name:SVC_LIST[0],commission:''});
+  document.getElementById('svcList').innerHTML=fd.services.map(svcRow).join('');
+}
+function rmSvc(i) {
+  fd.services.forEach((_,j)=>{
+    const n=document.getElementById('sn_'+j),c=document.getElementById('sc_'+j);
+    if(n)fd.services[j].name=n.value;
+    if(c)fd.services[j].commission=c.value;
+  });
+  fd.services.splice(i,1);
+  document.getElementById('svcList').innerHTML=fd.services.map(svcRow).join('');
+}
+
+// ─── STEP: MECHANICS ───
+const SPECS=['General','Engine','Transmission','Electrical','AC','Body Work','Suspension','Brakes','Tyres','Multi-Skilled'];
+function rMechanics() {
+  set(`
+    <div class="sec-title">Mechanics</div>
+    <div class="sec-sub">Register all mechanics working at this garage.</div>
+    <div id="mechList">${fd.mechanics.map(mechCard).join('')}</div>
+    <button class="add-btn" onclick="addMech()">+ Add Mechanic</button>
+  `);
+}
+function mechCard(m,i) {
+  const specOpts=SPECS.map(s=>`<option ${m.speciality===s?'selected':''} value="${s}">${s}</option>`).join('');
+  return `<div class="mech-card">
+    <div class="mech-head"><span class="mech-title">Mechanic ${i+1}</span><button class="btn-danger-sm" onclick="rmMech(${i})">Remove</button></div>
+    <div class="form-grid">
+      <div class="field"><label>Full Name</label><input id="mn_${i}" value="${m.name}" placeholder="Name" /></div>
+      <div class="field"><label>Experience (yrs)</label><input type="number" id="me_${i}" value="${m.experience}" placeholder="Years" /></div>
+      <div class="field"><label>Speciality</label><select id="ms_${i}" style="${_ss()}">${specOpts}</select></div>
+      <div class="field"><label>Phone</label><input id="mp_${i}" value="${m.phone||''}" placeholder="Mobile" /></div>
+    </div>
+  </div>`;
+}
+function addMech() {
+  // Save whatever is currently typed before re-rendering
+  fd.mechanics.forEach((_,i)=>{
+    const n=document.getElementById('mn_'+i),e=document.getElementById('me_'+i),
+          sp=document.getElementById('ms_'+i),p=document.getElementById('mp_'+i);
+    if(n)fd.mechanics[i].name=n.value;
+    if(e)fd.mechanics[i].experience=e.value;
+    if(sp)fd.mechanics[i].speciality=sp.value;
+    if(p)fd.mechanics[i].phone=p.value;
+  });
+  fd.mechanics.push({name:'',speciality:'General',experience:'',phone:''});
+  document.getElementById('mechList').innerHTML=fd.mechanics.map(mechCard).join('');
+}
+function rmMech(i) {
+  fd.mechanics.forEach((_,j)=>{
+    const n=document.getElementById('mn_'+j),e=document.getElementById('me_'+j),
+          sp=document.getElementById('ms_'+j),p=document.getElementById('mp_'+j);
+    if(n)fd.mechanics[j].name=n.value;
+    if(e)fd.mechanics[j].experience=e.value;
+    if(sp)fd.mechanics[j].speciality=sp.value;
+    if(p)fd.mechanics[j].phone=p.value;
+  });
+  fd.mechanics.splice(i,1);
+  document.getElementById('mechList').innerHTML=fd.mechanics.map(mechCard).join('');
+}
+
+// ─── STEP: OIL ───
+const BRANDS=['Castrol','Mobil','Shell','Gulf','Servo','HP Lubricants','Motul','Veedol','Pennzoil','Liqui Moly','Other'];
+const GRADES=['0W-20','5W-30','5W-40','10W-30','10W-40','15W-40','20W-50','SAE 40','0W-40'];
+function rOil() {
+  set(`
+    <div class="sec-title">Engine Oil Inventory</div>
+    <div class="sec-sub">List all engine oils available at this garage with pricing.</div>
+    <div class="card">
+      <div class="card-label">🛢️ Oil Products</div>
+      <div style="display:grid;grid-template-columns:2fr 1.2fr 1fr auto;gap:9px;font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;padding-bottom:7px;border-bottom:1px solid var(--border);margin-bottom:7px;">
+        <span>Brand</span><span>Grade</span><span>₹/Litre</span><span></span>
+      </div>
+      <div id="oilList">${fd.oils.map(oilRow).join('')}</div>
+      <button class="add-btn" onclick="addOil()">+ Add Oil</button>
+    </div>
+  `);
+}
+function oilRow(o,i) {
+  const bO=BRANDS.map(b=>`<option ${o.brand===b?'selected':''} value="${b}">${b}</option>`).join('');
+  const gO=GRADES.map(g=>`<option ${o.grade===g?'selected':''} value="${g}">${g}</option>`).join('');
+  return `<div style="display:grid;grid-template-columns:2fr 1.2fr 1fr auto;gap:9px;align-items:center;margin-bottom:8px;">
+    <select id="ob_${i}" style="${_ss()}">${bO}</select>
+    <select id="og_${i}" style="${_ss()}">${gO}</select>
+    <input id="op_${i}" value="${o.price||''}" placeholder="₹0" type="number" style="${_ss()}" />
+    <button class="rm-btn" onclick="rmOil(${i})">×</button>
+  </div>`;
+}
+function addOil() {
+  // Save whatever is currently typed before re-rendering
+  fd.oils.forEach((_,i)=>{
+    const b=document.getElementById('ob_'+i),gr=document.getElementById('og_'+i),p=document.getElementById('op_'+i);
+    if(b)fd.oils[i].brand=b.value;
+    if(gr)fd.oils[i].grade=gr.value;
+    if(p)fd.oils[i].price=p.value;
+  });
+  fd.oils.push({brand:BRANDS[0],grade:GRADES[4],price:''});
+  document.getElementById('oilList').innerHTML=fd.oils.map(oilRow).join('');
+}
+function rmOil(i) {
+  fd.oils.forEach((_,j)=>{
+    const b=document.getElementById('ob_'+j),gr=document.getElementById('og_'+j),p=document.getElementById('op_'+j);
+    if(b)fd.oils[j].brand=b.value;
+    if(gr)fd.oils[j].grade=gr.value;
+    if(p)fd.oils[j].price=p.value;
+  });
+  fd.oils.splice(i,1);
+  document.getElementById('oilList').innerHTML=fd.oils.map(oilRow).join('');
+}
+
+// ─── STEP: OWNER ───
+function rOwner() {
+  set(`
+    <div id="valBanner" class="val-banner"></div>
+    <div class="sec-title">Owner & Contact</div>
+    <div class="sec-sub">Collect contact and KYC details from the garage owner.</div>
+    <div class="card">
+      <div class="card-label">👤 Owner Details</div>
+      <div class="form-grid">
+        <div class="field form-full">
+          <label>Owner Full Name <span class="req">*</span></label>
+          <input id="oN" value="${fd.ownerName}" placeholder="As per Aadhar / PAN" />
+          <span class="err-msg" id="oN_err">Owner name is required</span>
+        </div>
+        <div class="field">
+          <label>Primary Phone <span class="req">*</span></label>
+          <input id="oP" type="tel" value="${fd.phone}" placeholder="10-digit mobile" maxlength="10" />
+          <span class="err-msg" id="oP_err">Phone number is required</span>
+        </div>
+        <div class="field"><label>Alternate Phone</label><input id="oAP" type="tel" value="${fd.altPhone}" placeholder="Alt number" maxlength="10" /></div>
+        <div class="field"><label>WhatsApp Number</label><input id="oW" type="tel" value="${fd.whatsapp}" placeholder="WhatsApp no." maxlength="10" /></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">📄 KYC Documents</div>
+      <div class="form-grid">
+        <div class="field"><label>PAN Card No.</label><input id="oPAN" value="${fd.panAadhar}" placeholder="XXXXX0000X" style="text-transform:uppercase" /></div>
+        <div class="field"><label>Aadhar No.</label><input id="oAdh" value="${fd.aadhar||''}" placeholder="0000 0000 0000" /></div>
+        <div class="field form-full"><label>Ghumasta / Business Cert No.</label><input id="oGH" value="${fd.ghumasta}" placeholder="License / Cert number" /></div>
+      </div>
+    </div>
+  `);
+}
+
+// ─── STEP: PAYMENT ───
+function rPayment() {
+  set(`
+    <div class="sec-title">Payment Details</div>
+    <div class="sec-sub">Required for commission settlements and payouts.</div>
+    <div class="card">
+      <div class="card-label">📲 UPI</div>
+      <div class="form-grid">
+        <div class="field"><label>UPI ID</label><input id="upi" value="${fd.upiId}" placeholder="name@upi" /></div>
+        <div class="field"><label>UPI QR Code</label>
+          <div style="border:1.5px dashed var(--border);border-radius:8px;padding:12px;text-align:center;background:var(--bg);position:relative;cursor:pointer;">
+            <input type="file" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;" onchange="handleQR(this)" />
+            <div id="qrLbl" style="font-size:13px;color:var(--muted);">${fd.qrFile ? '✅ '+fd.qrFile : '📷 Upload QR image'}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">🏦 Bank Account</div>
+      <div class="form-grid">
+        <div class="field"><label>Account Number</label><input id="accNo" value="${fd.accountNo}" placeholder="Account number" /></div>
+        <div class="field"><label>IFSC Code</label><input id="ifscC" value="${fd.ifsc}" placeholder="SBIN0001234" style="text-transform:uppercase" /></div>
+        <div class="field form-full"><label>Bank Name & Branch</label><input id="bnk" value="${fd.bank||''}" placeholder="Bank name and branch" /></div>
+      </div>
+    </div>
+  `);
+}
+function handleQR(el) { if(el.files[0]){ fd.qrFile=el.files[0].name; document.getElementById('qrLbl').textContent='✅ '+el.files[0].name; } }
+
+// ─── STEP: IMAGES ───
+const IMG_ITEMS=[
+  {key:'front',    icon:'🏪', label:'Garage Front View',      hint:'Signboard clearly visible, taken from outside'},
+  {key:'inside',   icon:'🔩', label:'Garage Interior',        hint:'Service bays, pit area, equipment'},
+  {key:'wide',     icon:'🌐', label:'Wide / Full View',       hint:'Entire premises in one frame'},
+  {key:'tools',    icon:'🛠️', label:'Tools & Equipment',      hint:'Lifts, machines, diagnostic tools'},
+  {key:'mech_work',icon:'👨‍🔧', label:'Mechanic in Action',    hint:'Mechanic actively working on a vehicle'},
+  {key:'mech_port',icon:'🙂', label:'Mechanic Portrait',      hint:'Face clearly visible, standing or sitting'},
+  {key:'owner',    icon:'👔', label:'Owner Portrait',         hint:'Professional photo, face clearly visible'},
+  {key:'banner',   icon:'🪧', label:'Garage Name Board',      hint:'Zoomed-in shot of the signboard'},
+  {key:'parking',  icon:'🅿️', label:'Parking / Driveway',    hint:'Space where customers park vehicles'},
+  {key:'waiting',  icon:'🪑', label:'Waiting Area',           hint:'Customer seating / waiting zone'},
+  {key:'oil_shelf',icon:'🛢️', label:'Oil & Parts Shelf',      hint:'Branded engine oils on display'},
+  {key:'receipt',  icon:'🧾', label:'Sample Invoice / Bill',  hint:'Any previous customer receipt'},
+];
+function rImages() {
+  const done = fd.images ? Object.keys(fd.images).filter(k=>fd.images[k]).length : 0;
+  const pct = Math.round(done / IMG_ITEMS.length * 100);
+  set(`
+    <div class="sec-title">Photo Checklist</div>
+    <div class="sec-sub">Tick each photo once captured on-site. This is a checklist — no uploads needed.</div>
+    <div class="info-box">📌 <b>Guidelines:</b> Natural light · No blur · Portrait shots = vertical · Wide shots = horizontal · Keep background tidy</div>
+
+    <div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="card-label" style="margin:0;">Progress</div>
+        <div style="font-size:13px;font-weight:700;color:${pct===100?'var(--green)':'var(--blue)'};">${done} / ${IMG_ITEMS.length} done</div>
+      </div>
+      <div style="height:6px;background:var(--border);border-radius:4px;">
+        <div style="height:6px;background:${pct===100?'var(--green)':'var(--blue)'};border-radius:4px;width:${pct}%;transition:width 0.3s;"></div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:8px 18px;">
+      ${IMG_ITEMS.map(item => `
+        <div class="checklist-item ${fd.images&&fd.images[item.key]?'checklist-done':''}" id="cl_${item.key}" onclick="toggleCheck('${item.key}')">
+          <div class="cl-checkbox">${fd.images&&fd.images[item.key]?'✓':''}</div>
+          <div class="cl-icon">${item.icon}</div>
+          <div class="cl-info">
+            <div class="cl-label">${item.label}</div>
+            <div class="cl-hint">${item.hint}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `);
+}
+function toggleCheck(key) {
+  if (!fd.images) fd.images = {};
+  fd.images[key] = !fd.images[key];
+  const el = document.getElementById('cl_' + key);
+  if (el) {
+    el.classList.toggle('checklist-done', fd.images[key]);
+    el.querySelector('.cl-checkbox').textContent = fd.images[key] ? '✓' : '';
+  }
+  // update progress bar
+  const done = Object.keys(fd.images).filter(k=>fd.images[k]).length;
+  const pct = Math.round(done / IMG_ITEMS.length * 100);
+  const bar = document.querySelector('.card div[style*="height:6px;background:var"]');
+  if (bar) { bar.style.width = pct+'%'; bar.style.background = pct===100?'var(--green)':'var(--blue)'; }
+  const countEl = document.querySelector('.card div[style*="font-size:13px;font-weight:700"]');
+  if (countEl) { countEl.textContent = done+' / '+IMG_ITEMS.length+' done'; countEl.style.color = pct===100?'var(--green)':'var(--blue)'; }
+}
+
+// ─── VISITS PANEL ───
+function renderVisitsPanel() {
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DAYS=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  document.getElementById('calContent').innerHTML = `
+    <div class="cal-panel-title">📅 Visit Tracker</div>
+    <div class="cal-panel-sub">Track field visits and onboarding leads. Not part of the SOP.</div>
+    <div class="cal-layout">
+      <div class="cal-card">
+        <div class="cal-hdr">
+          <div class="cal-mon-name" id="calMon"></div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div class="cal-nav"><button onclick="chMon(-1)">‹</button><button onclick="chMon(1)">›</button></div>
+            <button class="btn btn-blue btn-sm" onclick="openModal()">+ Schedule</button>
+          </div>
+        </div>
+        <div id="calGrid"></div>
+      </div>
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <div style="font-size:13px;font-weight:700;" id="vListTitle">All Visits</div>
+        </div>
+        <div id="vListEl"></div>
+      </div>
+    </div>
+  `;
+  drawCal(); drawVList();
+}
+
+function drawCal() {
+  const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const DL=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  const monEl=document.getElementById('calMon'); if(!monEl)return;
+  monEl.textContent=MONTHS[calM]+' '+calY;
+  const first=new Date(calY,calM,1).getDay(), total=new Date(calY,calM+1,0).getDate(), now=new Date();
+  let html=DL.map(d=>`<div class="cdl">${d}</div>`).join('');
+  for(let i=0;i<first;i++) html+=`<div class="cd empty"></div>`;
+  for(let d=1;d<=total;d++){
+    const ds=`${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=now.getFullYear()===calY&&now.getMonth()===calM&&now.getDate()===d;
+    const hasV=fd.visits.some(v=>v.date===ds);
+    const isSel=selDate===ds;
+    html+=`<div class="cd ${isT?'today':''} ${hasV?'has-v':''} ${isSel?'sel':''}" onclick="pickDate('${ds}')">${d}</div>`;
+  }
+  const gEl=document.getElementById('calGrid'); if(gEl) gEl.innerHTML=`<div class="cal-grid">${html}</div>`;
+}
+
+function pickDate(d) { selDate=d; drawCal(); const el=document.getElementById('vListTitle'); if(el) el.textContent=`Visits — ${d}`; drawVList(d); }
+function chMon(dir) { calM+=dir; if(calM<0){calM=11;calY--;}if(calM>11){calM=0;calY++;} drawCal(); }
+
+function drawVList(filter=null) {
+  const el=document.getElementById('vListEl'); if(!el) return;
+  const list=filter?fd.visits.filter(v=>v.date===filter):fd.visits;
+  if(!list.length){ el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:16px 0;text-align:center;">No visits ${filter?'on this date':'yet'}.<br><br><button class="btn btn-blue btn-sm" onclick="openModal()">+ Schedule Visit</button></div>`; return; }
+  const cols={Scheduled:'#3b5bdb',Done:'#16a34a',Missed:'#dc2626',Rescheduled:'#d97706'};
+  // Find original index for deletion
+  el.innerHTML = list.map(v => {
+    const origIdx = fd.visits.indexOf(v);
+    return `<div class="v-item">
+      <div class="v-dot" style="background:${cols[v.status]||'#888'}"></div>
+      <div style="flex:1;">
+        <div class="v-name">${v.garage||'—'}</div>
+        <div class="v-meta">${v.date}${v.time?' · '+v.time:''}${v.agent?' · '+v.agent:''}</div>
+        ${v.notes?`<div class="v-meta" style="margin-top:1px;">${v.notes}</div>`:''}
+      </div>
+      <div class="v-right">
+        <span class="v-status s-${(v.status||'scheduled').toLowerCase()}">${v.status}</span>
+        <button class="v-del" onclick="deleteVisit(${origIdx})" title="Delete visit">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deleteVisit(i) {
+  if (!confirm('Delete this visit?')) return;
+  fd.visits.splice(i, 1);
+  saveLocal();
+  drawCal();
+  drawVList(selDate);
+  showToast('Visit deleted', 'info');
+}
+
+function openModal() {
+  ['vm_garage','vm_date','vm_time','vm_agent','vm_notes'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=id==='vm_date'?(selDate||''):id==='vm_garage'?fd.garageName:''; });
+  document.getElementById('vm_status').value='Scheduled';
+  document.getElementById('vBanner').classList.remove('show');
+  ['vg_err','vd_err'].forEach(id=>{ const e=document.getElementById(id); if(e) e.classList.remove('show'); });
+  ['vm_garage','vm_date'].forEach(id=>{ const e=document.getElementById(id); if(e) e.classList.remove('err'); });
+  document.getElementById('visitModal').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('visitModal').classList.add('hidden'); }
+function saveVisit() {
+  const g=document.getElementById('vm_garage'), d=document.getElementById('vm_date');
+  let ok=true;
+  if(!g.value.trim()){ g.classList.add('err'); document.getElementById('vg_err').classList.add('show'); ok=false; }
+  if(!d.value){ d.classList.add('err'); document.getElementById('vd_err').classList.add('show'); ok=false; }
+  if(!ok){ document.getElementById('vBanner').textContent='⚠ Please fill required fields.'; document.getElementById('vBanner').classList.add('show'); return; }
+  const v={garage:g.value,date:d.value,time:document.getElementById('vm_time').value,agent:document.getElementById('vm_agent').value,status:document.getElementById('vm_status').value,notes:document.getElementById('vm_notes').value};
+  fd.visits.push(v);
+  saveLocal();
+  closeModal();
+  drawCal();
+  drawVList(selDate);
+  showToast('Visit scheduled!','success');
+  pushVisit(v);
+}
+
+// ─── GARAGE DETAIL MODAL ───
+function showGarageDetail(idx) {
+  const g = savedGarages[idx];
+  if (!g) return;
+  const rows = Object.entries(g)
+    .filter(([k]) => !['Submitted'].includes(k))
+    .map(([k,v]) => v ? `<div class="gd-row"><span class="gd-k">${k}</span><span class="gd-v">${v}</span></div>` : '')
+    .join('');
+  document.getElementById('garageModalContent').innerHTML = `
+    <div class="gd-header">
+      <div class="gd-name">${g['Garage Name']||'Unnamed'}</div>
+      <div class="gd-city">${g['City']||''} ${g['State']||''}</div>
+      <div style="margin-top:10px;"><span class="onboarded-badge"><div class="ob-dot"></div>Onboarded</span></div>
+    </div>
+    <div class="gd-section">
+      <div class="gd-sec-title">📋 Details</div>
+      ${rows}
+    </div>
+  `;
+  document.getElementById('garageModal').classList.remove('hidden');
+}
+function closeGarageModal() { document.getElementById('garageModal').classList.add('hidden'); }
+
+// ─── COLLECT ───
+function collect() {
+  const s=STEPS[cur].id, g=id=>{const e=document.getElementById(id);return e?e.value:''};
+  if(s==='basic'){ fd.garageName=g('gN')||fd.garageName;fd.garageAddress=g('gA')||fd.garageAddress;fd.garageCity=g('gC')||fd.garageCity;fd.garageState=g('gS')||fd.garageState;fd.garagePincode=g('gP')||fd.garagePincode;fd.mapLink=g('gM')||fd.mapLink; }
+  if(s==='schedule'){ if(g('oT'))fd.openTime=g('oT');if(g('cT'))fd.closeTime=g('cT');if(document.getElementById('schedNote'))fd.scheduleNote=g('schedNote'); }
+  if(s==='pickup'){
+    const p=document.getElementById('pAvail'); if(p)fd.pickupAvailable=p.checked;
+  }
+  if(s==='services'){ fd.services.forEach((_,i)=>{ const n=document.getElementById('sn_'+i),c=document.getElementById('sc_'+i); if(n)fd.services[i].name=n.value; if(c)fd.services[i].commission=c.value; }); }
+  if(s==='mechanics'){ fd.mechanics.forEach((_,i)=>{ const n=document.getElementById('mn_'+i),e=document.getElementById('me_'+i),sp=document.getElementById('ms_'+i),p=document.getElementById('mp_'+i); if(n)fd.mechanics[i].name=n.value; if(e)fd.mechanics[i].experience=e.value; if(sp)fd.mechanics[i].speciality=sp.value; if(p)fd.mechanics[i].phone=p.value; }); }
+  if(s==='oil'){ fd.oils.forEach((_,i)=>{ const b=document.getElementById('ob_'+i),gr=document.getElementById('og_'+i),p=document.getElementById('op_'+i); if(b)fd.oils[i].brand=b.value; if(gr)fd.oils[i].grade=gr.value; if(p)fd.oils[i].price=p.value; }); }
+  if(s==='owner'){ if(g('oN'))fd.ownerName=g('oN');if(g('oP'))fd.phone=g('oP');fd.altPhone=g('oAP')||fd.altPhone;fd.whatsapp=g('oW')||fd.whatsapp;fd.panAadhar=g('oPAN')||fd.panAadhar;fd.aadhar=g('oAdh')||fd.aadhar;fd.ghumasta=g('oGH')||fd.ghumasta; }
+  if(s==='payment'){ fd.upiId=g('upi')||fd.upiId;fd.accountNo=g('accNo')||fd.accountNo;fd.ifsc=g('ifscC')||fd.ifsc;fd.bank=g('bnk')||fd.bank; }
+}
+
+// ─── SAVE / SUBMIT ───
+function flatten() {
+  return {
+    'Garage Name':fd.garageName,'Address':fd.garageAddress,'City':fd.garageCity,'State':fd.garageState,'Pincode':fd.garagePincode,'Maps Link':fd.mapLink,
+    'Garage Vehicle Type':fd.garageVtype||'4W',
+    'Working Days':fd.workingDays.join(', '),'Open':fd.openTime,'Close':fd.closeTime,'Schedule Note':fd.scheduleNote||'',
+    'Pickup':fd.pickupAvailable?'Yes':'No','Pickup Slots':Array.isArray(fd.pickupSlots)?fd.pickupSlots.join(', '):'',
+    'Services':fd.services.map(s=>`${s.name}:${s.commission}%`).join('; '),
+    'Mechanics':fd.mechanics.map(m=>`${m.name}/${m.speciality}/${m.experience}yr`).join('; '),
+    'Oils':fd.oils.map(o=>`${o.brand} ${o.grade} ₹${o.price}`).join('; '),
+    'Owner':fd.ownerName,'Phone':fd.phone,'Alt Phone':fd.altPhone,'WhatsApp':fd.whatsapp,
+    'PAN':fd.panAadhar,'Aadhar':fd.aadhar||'','Ghumasta':fd.ghumasta,
+    'UPI':fd.upiId,'Account':fd.accountNo,'IFSC':fd.ifsc,'Bank':fd.bank,
+    'Images':Object.keys(fd.images).join(', '),'Submitted':new Date().toLocaleString('en-IN')
+  };
+}
+
+function saveLocal() {
+  localStorage.setItem('mh_visits', JSON.stringify(fd.visits));
+}
+
+async function submitData() {
+  // Collect all current form values first
+  const allSteps = ['basic','schedule','pickup','services','mechanics','oil','owner','payment'];
+  const origCur = cur;
+  allSteps.forEach((sid,i) => { cur = i; collect(); });
+  cur = origCur;
+  collect(); // collect current step one more time to be safe
+
+  const row = flatten();
+
+  // Always save to localStorage as backup
+  savedGarages.push(row);
+  localStorage.setItem('mh_garages', JSON.stringify(savedGarages));
+  renderSidebar();
+
+  // Check if URL is configured
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbzzrIjItGqY46K1JGf_-etkxfxgcD7_o_ydS-17-QhP2_cRLnm7CJOS1hCxtpZLRlXJ/exec') {
+    showToast('⚠ Set APPS_SCRIPT_URL first. Data saved locally.', 'error');
+    showSheetsGuide();
+    return;
+  }
+
+  showToast('💾 Saving to Google Sheets...', 'info');
+
+  try {
+    // Use text/plain to avoid CORS preflight — Apps Script handles this correctly
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'saveGarage', data: row })
+    });
+    const text = await response.text();
+    let result;
+    try { result = JSON.parse(text); } catch(e) { result = { status: text.includes('success') ? 'ok' : 'error' }; }
+
+    if (result.status === 'ok' || result.status === 'success') {
+      showToast('✅ Saved to Google Sheets successfully!', 'success');
+    } else {
+      throw new Error(result.message || 'Unknown error from Apps Script');
+    }
+  } catch(e) {
+    // Fallback: try GET method (some Apps Script deployments only accept GET)
+    try {
+      const payload = encodeURIComponent(JSON.stringify({ action: 'saveGarage', data: row }));
+      await fetch(APPS_SCRIPT_URL + '?payload=' + payload, { method: 'GET', mode: 'no-cors' });
+      showToast('✅ Saved to Google Sheets!', 'success');
+    } catch(e2) {
+      showToast('⚠ Saved locally only. Check your Apps Script URL.', 'error');
+      console.error('Sheets error:', e2);
+    }
+  }
+}
+
+async function pushVisit(v) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbzzrIjItGqY46K1JGf_-etkxfxgcD7_o_ydS-17-QhP2_cRLnm7CJOS1hCxtpZLRlXJ/exec') return;
+  try {
+    const response = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'saveVisit', data: v })
+    });
+  } catch(e) {
+    try {
+      const payload = encodeURIComponent(JSON.stringify({ action: 'saveVisit', data: v }));
+      await fetch(APPS_SCRIPT_URL + '?payload=' + payload, { method: 'GET', mode: 'no-cors' });
+    } catch(e2) {}
+  }
+}
+
+// ─── SUMMARY ───
+function showSummary() {
+  collect();
+  const rows=[
+    ['Garage',fd.garageName],['City',fd.garageCity],['Maps',fd.mapLink?'✓':'—'],
+    ['Days',fd.workingDays.join(', ')||'—'],['Hours',`${fd.openTime} – ${fd.closeTime}`],
+    ['Pickup',fd.pickupAvailable?'Yes ('+fd.pickupSlots.length+' slots)':'No'],
+    ['Services',fd.services.length+' listed'],['Mechanics',fd.mechanics.length+' registered'],
+    ['Oils',fd.oils.length+' products'],['Owner',fd.ownerName],['Phone',fd.phone],
+    ['UPI',fd.upiId||'—'],['KYC',fd.panAadhar?'Added':'—'],
+    ['Photos',Object.keys(fd.images).length+'/12 captured'],['Visits',fd.visits.length+' scheduled'],
+  ].map(([k,v])=>`<div class="gd-row"><span class="gd-k">${k}</span><span class="gd-v">${v||'—'}</span></div>`).join('');
+
+  document.body.insertAdjacentHTML('beforeend',`
+    <div class="modal-bg" id="sumModal">
+      <div class="modal-box" style="max-height:85vh;overflow-y:auto;max-width:480px;">
+        <div class="modal-title">📋 Summary — ${fd.garageName||'Unnamed Garage'}</div>
+        ${rows}
+        <div class="modal-footer">
+          <button class="btn btn-outline" onclick="document.getElementById('sumModal').remove()">Close</button>
+          <button class="btn btn-blue" onclick="submitData();document.getElementById('sumModal').remove()">💾 Save</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// ─── SHEETS GUIDE ───
+function showSheetsGuide() {
+  const script=`const SHEET_ID = 'YOUR_SHEET_ID_HERE';
+function doPost(e) {
+  const data = JSON.parse(e.postData.contents);
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  if (data.action === 'saveGarage') {
+    const sh = ss.getSheetByName('Garages') || ss.insertSheet('Garages');
+    if (sh.getLastRow() === 0) sh.appendRow(Object.keys(data.data));
+    sh.appendRow(Object.values(data.data));
+  }
+  if (data.action === 'saveVisit') {
+    const sh = ss.getSheetByName('Visits') || ss.insertSheet('Visits');
+    if (sh.getLastRow() === 0) sh.appendRow(['Garage','Date','Time','Agent','Status','Notes']);
+    const v = data.data;
+    sh.appendRow([v.garage,v.date,v.time,v.agent,v.status,v.notes]);
+  }
+  return ContentService.createTextOutput(JSON.stringify({status:'ok'}))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+  document.body.insertAdjacentHTML('beforeend',`
+    <div class="modal-bg" id="gsModal">
+      <div class="modal-box" style="max-width:540px;max-height:85vh;overflow-y:auto;">
+        <div class="modal-title">🔗 Connect Google Sheets Backend</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:12px;">
+          <b style="color:var(--text)">1.</b> Create a Google Sheet<br>
+          <b style="color:var(--text)">2.</b> Extensions → Apps Script → paste script below<br>
+          <b style="color:var(--text)">3.</b> Replace <code>YOUR_SHEET_ID_HERE</code> with your Sheet ID (from URL)<br>
+          <b style="color:var(--text)">4.</b> Deploy → Web App → Execute as Me → Anyone<br>
+          <b style="color:var(--text)">5.</b> Paste the URL in <code>APPS_SCRIPT_URL</code> at top of this file
+        </div>
+        <pre id="gsScript" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:13px;font-size:11px;overflow-x:auto;white-space:pre-wrap;max-height:220px;overflow-y:auto;">${script}</pre>
+        <div style="margin-top:12px;font-size:12px;color:var(--muted);">💡 Data is also saved in browser (localStorage) as a backup even without Sheets.</div>
+        <div class="modal-footer">
+          <button class="btn btn-blue" onclick="navigator.clipboard.writeText(document.getElementById('gsScript').textContent).then(()=>showToast('Copied!','success'))">Copy Script</button>
+          <button class="btn btn-outline" onclick="document.getElementById('gsModal').remove()">Close</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+// ─── TOAST ───
+let tt;
+function showToast(msg, type='success') {
+  const t=document.getElementById('toast'), icons={success:'✓',error:'✗',info:'ℹ'};
+  t.className=`toast t-${type}`;
+  document.getElementById('toastIcon').textContent=icons[type];
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.remove('hidden');
+  clearTimeout(tt); tt=setTimeout(()=>t.classList.add('hidden'),3500);
+}
+
+// ─── LOAD SAVED VISITS ───
+const savedVisits = localStorage.getItem('mh_visits');
+if (savedVisits) { try { fd.visits = JSON.parse(savedVisits); } catch{} }
+
+// ─── INIT ───
+renderAll();
+</script>
+</body>
+</html>
